@@ -3,13 +3,12 @@ package conv
 import (
 	"bytes"
 	"strings"
-	"sync"
 
 	"github.com/zeromake/pkg/utils"
 )
 
-var pmap sync.Map
-var umap sync.Map
+// var pmap sync.Map
+// var umap sync.Map
 var commonInitialismsReplacer *strings.Replacer
 var reCommonInitialismsReplacer *strings.Replacer
 var commonInitialisms = []string{
@@ -67,29 +66,29 @@ func init() {
 	reCommonInitialismsReplacer = strings.NewReplacer(reCommonInitialismsForReplacer...)
 }
 
-// CacheUnderlineToPascalCase 下滑线转帕斯卡带全局缓存
-func CacheUnderlineToPascalCase(name string) string {
-	if v, ok := umap.Load(name); ok {
-		return v.(string)
-	}
-	s := UnderlineToPascalCase(name)
-	if s != "" {
-		umap.Store(name, s)
-	}
-	return s
-}
+// // CacheUnderlineToPascalCase 下滑线转帕斯卡带全局缓存
+// func CacheUnderlineToPascalCase(name string) string {
+// 	if v, ok := umap.Load(name); ok {
+// 		return v.(string)
+// 	}
+// 	s := UnderlineToPascalCase(name)
+// 	if s != "" {
+// 		umap.Store(name, s)
+// 	}
+// 	return s
+// }
 
-// CachePascalCaseToUnderline 帕斯卡转下滑线带全局缓存
-func CachePascalCaseToUnderline(name string) string {
-	if v, ok := umap.Load(name); ok {
-		return v.(string)
-	}
-	s := PascalCaseToUnderline(name)
-	if s != "" {
-		umap.Store(name, s)
-	}
-	return s
-}
+// // CachePascalCaseToUnderline 帕斯卡转下滑线带全局缓存
+// func CachePascalCaseToUnderline(name string) string {
+// 	if v, ok := umap.Load(name); ok {
+// 		return v.(string)
+// 	}
+// 	s := PascalCaseToUnderline(name)
+// 	if s != "" {
+// 		umap.Store(name, s)
+// 	}
+// 	return s
+// }
 
 // UnderlineToPascalCase 下划线命名转帕斯卡命名
 func UnderlineToPascalCase(name string) string {
@@ -98,15 +97,19 @@ func UnderlineToPascalCase(name string) string {
 	}
 	var (
 		value    = reCommonInitialismsReplacer.Replace(name)
-		buf      = bytes.NewBufferString("")
-		isTitle  = true
 		bb       = utils.StringToBytes(value)
+		buf      = make([]byte, len(bb))
+		isTitle  = true
 		isOneKey = false
 	)
+	index := 0
 	for i, v := range bb {
 		if v == '_' {
 			isTitle = true
-			isOneKey = i > 0 && bb[i-1] >= 'A' && bb[i-1] <= 'Z'
+			if i > 0 {
+				b := buf[i-1]
+				isOneKey = b >= 'A' && b <= 'Z'
+			}
 			continue
 		}
 		if isTitle {
@@ -117,9 +120,10 @@ func UnderlineToPascalCase(name string) string {
 		} else if isOneKey && v >= 'A' && v <= 'Z' {
 			v += 32
 		}
-		buf.WriteByte(v)
+		buf[index] = v
+		index++
 	}
-	s := utils.BytesToString(buf.Bytes())
+	s := utils.BytesToString(buf[:index])
 	return s
 }
 

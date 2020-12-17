@@ -22,7 +22,7 @@ func TestUnderlineToPascalCase(t *testing.T) {
 		},
 		{
 			"u_id",
-			"UID",
+			"UId",
 		},
 		{
 			"uid",
@@ -30,6 +30,36 @@ func TestUnderlineToPascalCase(t *testing.T) {
 		},
 	}
 	for _, name := range names {
-		assert.True(t, UnderlineToPascalCase(name[0]) == name[1])
+		n := UnderlineToPascalCase(name[0])
+		assert.Equal(t, n, name[1])
+	}
+}
+
+func TestPascalCaseToUnderline(t *testing.T) {
+	names := [][2]string{
+		{
+			"name",
+			"Name",
+		},
+		{
+			"api_endpoind",
+			"APIEndpoind",
+		},
+		{
+			"id",
+			"ID",
+		},
+		{
+			"u_id",
+			"UId",
+		},
+		{
+			"uid",
+			"UID",
+		},
+	}
+	for _, name := range names {
+		n := PascalCaseToUnderline(name[1])
+		assert.Equal(t, n, name[0])
 	}
 }
