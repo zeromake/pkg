@@ -22,7 +22,6 @@ var commonInitialisms = []string{
 	"HTML",
 	"HTTPS",
 	"HTTP",
-	"ID",
 	"IP",
 	"JSON",
 	"LHS",
@@ -37,6 +36,7 @@ var commonInitialisms = []string{
 	"TTL",
 	"UUID",
 	"UID",
+	"ID",
 	"UI",
 	"URI",
 	"URL",
@@ -49,16 +49,15 @@ var commonInitialisms = []string{
 
 func init() {
 	var (
-		replacerLen                    = len(commonInitialisms)
-		commonInitialismsForReplacer   = make([]string, replacerLen*2)
-		reCommonInitialismsForReplacer = make([]string, replacerLen*2)
+		replacerLen                    = len(commonInitialisms) * 2
+		commonInitialismsForReplacer   = make([]string, replacerLen)
+		reCommonInitialismsForReplacer = make([]string, replacerLen)
 	)
 	for i := 0; i < replacerLen; i += 2 {
-		initialism := commonInitialisms[i]
+		initialism := commonInitialisms[i/2]
 		lowerInitialism := strings.ToLower(initialism)
-		initialismTitle := strings.Title(lowerInitialism)
 		commonInitialismsForReplacer[i] = initialism
-		commonInitialismsForReplacer[i+1] = initialismTitle
+		commonInitialismsForReplacer[i+1] = lowerInitialism
 		reCommonInitialismsForReplacer[i] = lowerInitialism
 		reCommonInitialismsForReplacer[i+1] = initialism
 	}
@@ -96,20 +95,15 @@ func UnderlineToPascalCase(name string) string {
 		return ""
 	}
 	var (
-		value    = reCommonInitialismsReplacer.Replace(name)
-		bb       = utils.StringToBytes(value)
-		buf      = make([]byte, len(bb))
-		isTitle  = true
-		isOneKey = false
+		value   = reCommonInitialismsReplacer.Replace(name)
+		bb      = utils.StringToBytes(value)
+		buf     = make([]byte, len(bb))
+		isTitle = true
 	)
 	index := 0
-	for i, v := range bb {
+	for _, v := range bb {
 		if v == '_' {
 			isTitle = true
-			if i > 0 {
-				b := buf[i-1]
-				isOneKey = b >= 'A' && b <= 'Z'
-			}
 			continue
 		}
 		if isTitle {
@@ -117,8 +111,6 @@ func UnderlineToPascalCase(name string) string {
 				v -= 32
 			}
 			isTitle = false
-		} else if isOneKey && v >= 'A' && v <= 'Z' {
-			v += 32
 		}
 		buf[index] = v
 		index++
@@ -146,7 +138,10 @@ func PascalCaseToUnderline(name string) string {
 		nextV := bb[i+1]
 		nextCase = nextV >= 'A' && nextV <= 'Z'
 		nextNumber = nextV >= '0' && nextV <= '9'
-
+		currCase = v >= 'A' && v <= 'Z'
+		if currCase {
+			v += 32
+		}
 		if i > 0 {
 			if currCase {
 				if lastCase && (nextCase || nextNumber) {
@@ -164,14 +159,16 @@ func PascalCaseToUnderline(name string) string {
 				}
 			}
 		} else {
-			currCase = true
 			buf.WriteByte(v)
 		}
 		lastCase = currCase
-		currCase = nextCase
+		// currCase = nextCase
 	}
-
-	buf.WriteByte(bb[vLen])
-	s := strings.ToLower(utils.BytesToString(buf.Bytes()))
+	v := bb[vLen]
+	if v >= 'A' && v <= 'Z' {
+		v += 32
+	}
+	buf.WriteByte(v)
+	s := buf.String()
 	return s
 }

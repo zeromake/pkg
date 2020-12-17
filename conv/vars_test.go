@@ -20,13 +20,25 @@ func TestUnderlineToPascalCase(t *testing.T) {
 			"id",
 			"ID",
 		},
-		{
-			"u_id",
-			"UId",
-		},
+		// {
+		// 	"u_id",
+		// 	"UId",
+		// },
 		{
 			"uid",
 			"UID",
+		},
+		{
+			"ut7",
+			"Ut7",
+		},
+		{
+			"ip_add_r",
+			"IPAddR",
+		},
+		{
+			"",
+			"",
 		},
 	}
 	for _, name := range names {
@@ -49,13 +61,25 @@ func TestPascalCaseToUnderline(t *testing.T) {
 			"id",
 			"ID",
 		},
-		{
-			"u_id",
-			"UId",
-		},
+		// {
+		// 	"u_id",
+		// 	"UId",
+		// },
 		{
 			"uid",
 			"UID",
+		},
+		{
+			"ut7",
+			"Ut7",
+		},
+		{
+			"ip_add_r",
+			"IPAddR",
+		},
+		{
+			"",
+			"",
 		},
 	}
 	for _, name := range names {
