@@ -1,4 +1,4 @@
-package caseconv
+package textconv
 
 import (
 	"regexp"
@@ -43,8 +43,8 @@ type Options struct {
 
 func (o *Options) Clone() *Options {
 	return &Options{
-		Delimiter:   o.Delimiter,
-		Transform:   o.Transform,
+		Delimiter: o.Delimiter,
+		Transform: o.Transform,
 	}
 }
 
@@ -71,7 +71,7 @@ func replace(input string, regexps []*regexp.Regexp, value string) string {
 //	return flag
 //}
 
-func Case(input string, options Options) string {
+func NoCase(input string, options Options) string {
 	var result []string
 	if options.SplitRegexp == nil && options.StripRegexp == nil {
 		result = SplitString(input)

@@ -1,5 +1,4 @@
-package caseconv
-
+package textconv
 
 func CapitalCaseTransform(input string, _ int) string {
 	return PascalCaseTransformMerge(input)
@@ -10,5 +9,5 @@ func CapitalCase(input string, options ...Option) string {
 	opt.Delimiter = " "
 	opt.Transform = CapitalCaseTransform
 	buildOptions(&opt, options)
-	return Case(input, opt)
+	return NoCase(input, opt)
 }

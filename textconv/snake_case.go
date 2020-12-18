@@ -1,8 +1,8 @@
-package caseconv
+package textconv
 
 func SnakeCase(input string, options ...Option) string {
 	opt := DefaultOptions
 	opt.Delimiter = "_"
 	buildOptions(&opt, options)
-	return Case(input, opt)
+	return NoCase(input, opt)
 }

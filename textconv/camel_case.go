@@ -1,4 +1,4 @@
-package caseconv
+package textconv
 
 import (
 	"strings"
@@ -23,5 +23,5 @@ func CamelCase(input string, options ...Option) string {
 	opt.Delimiter = ""
 	opt.Transform = CamelCaseTransform
 	buildOptions(&opt, options)
-	return Case(input, opt)
+	return NoCase(input, opt)
 }

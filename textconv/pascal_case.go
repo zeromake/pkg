@@ -1,4 +1,4 @@
-package caseconv
+package textconv
 
 import (
 	"strings"
@@ -21,5 +21,5 @@ func PascalCase(input string, options ...Option) string {
 	opt.Delimiter = ""
 	opt.Transform = PascalCaseTransform
 	buildOptions(&opt, options)
-	return Case(input, opt)
+	return NoCase(input, opt)
 }

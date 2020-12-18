@@ -1,11 +1,12 @@
-package caseconv
+package textconv
 
 import (
-	"github.com/stretchr/testify/assert"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
-func TestCase(t *testing.T) {
+func TestNoCase(t *testing.T) {
 	names := [][2]string{
 		{
 			"camelCase",
@@ -17,7 +18,7 @@ func TestCase(t *testing.T) {
 		},
 	}
 	for _, name := range names {
-		n := Case(name[0], DefaultOptions)
+		n := NoCase(name[0], DefaultOptions)
 		assert.Equal(t, n, name[1])
 	}
 }
