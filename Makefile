@@ -9,4 +9,7 @@ cover-html: cover
 	go tool cover -html=coverage/coverage.cov -o coverage/coverage.html
 
 bench:
-	go test -bench=. -benchmem -run=none -benchtime=5s  ./...
+	go test -bench=. -benchmem -run=none -benchtime=5s ./...
+
+pprof:
+	go test -cpuprofile=cpu.out -memprofile=mem.out ./textconv

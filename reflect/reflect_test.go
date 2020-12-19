@@ -28,4 +28,7 @@ func TestCopyToStruct(t *testing.T) {
 	}
 	assert.Equal(t, u.ID, up.ID)
 	assert.Equal(t, u.Name, up.Name)
+
+	err = CopyToStruct(nil, nil)
+	assert.Equal(t, err, ErrorNotSupply)
 }

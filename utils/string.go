@@ -7,12 +7,8 @@ import (
 
 // BytesToString 字节数组转字符串
 func BytesToString(b []byte) string {
-	bh := (*reflect.SliceHeader)(unsafe.Pointer(&b))
-	sh := reflect.StringHeader{
-		Data: bh.Data,
-		Len:  bh.Len,
-	}
-	return *(*string)(unsafe.Pointer(&sh))
+	// bytes 转字符串可以直接复用指针
+	return *(*string)(unsafe.Pointer(&b))
 }
 
 // StringToBytes 字符串转字节数组

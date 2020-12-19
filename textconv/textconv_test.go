@@ -175,6 +175,101 @@ func TestPathCase(t *testing.T) {
 	}
 }
 
+func TestConstantCase(t *testing.T) {
+	names := [][2]string{
+		{
+			"string",
+			"STRING",
+		},
+		{
+			"dot.case",
+			"DOT_CASE",
+		},
+		{
+			"PascalCase",
+			"PASCAL_CASE",
+		},
+		{
+			"camelCase",
+			"CAMEL_CASE",
+		},
+		{
+			"version 1.2.3",
+			"VERSION_1_2_3",
+		},
+	}
+	for _, name := range names {
+		n := ConstantCase(name[0])
+		assert.Equal(t, n, name[1])
+	}
+}
+
+func TestDotCase(t *testing.T) {
+	names := [][2]string{
+		{"", ""},
+		{"test", "test"},
+		{"test string", "test.string"},
+		{"Test String", "test.string"},
+		{"dot.case", "dot.case"},
+		{"path/case", "path.case"},
+		{"TestV2", "test.v2"},
+		{"version 1.2.10", "version.1.2.10"},
+		{"version 1.21.0", "version.1.21.0"},
+	}
+	for _, name := range names {
+		n := DotCase(name[0])
+		assert.Equal(t, n, name[1])
+	}
+}
+
+func TestHeaderCase(t *testing.T) {
+	names := [][2]string{
+		{"", ""},
+		{"test", "Test"},
+		{"test string", "Test-String"},
+		{"Test String", "Test-String"},
+		{"TestV2", "Test-V2"},
+		{"version 1.2.10", "Version-1-2-10"},
+		{"version 1.21.0", "Version-1-21-0"},
+	}
+	for _, name := range names {
+		n := HeaderCase(name[0])
+		assert.Equal(t, n, name[1])
+	}
+}
+
+func TestParamCase(t *testing.T) {
+	names := [][2]string{
+		{"", ""},
+		{"test", "test"},
+		{"test string", "test-string"},
+		{"Test String", "test-string"},
+		{"TestV2", "test-v2"},
+		{"version 1.2.10", "version-1-2-10"},
+		{"version 1.21.0", "version-1-21-0"},
+	}
+	for _, name := range names {
+		n := ParamCase(name[0])
+		assert.Equal(t, n, name[1])
+	}
+}
+
+func TestSentenceCase(t *testing.T) {
+	names := [][2]string{
+		{"", ""},
+		{"test", "Test"},
+		{"test string", "Test string"},
+		{"Test String", "Test string"},
+		{"TestV2", "Test v2"},
+		{"version 1.2.10", "Version 1 2 10"},
+		{"version 1.21.0", "Version 1 21 0"},
+	}
+	for _, name := range names {
+		n := SentenceCase(name[0])
+		assert.Equal(t, n, name[1])
+	}
+}
+
 var ss = " CAMELCase "
 
 func BenchmarkSplitString(b *testing.B) {
@@ -182,17 +277,3 @@ func BenchmarkSplitString(b *testing.B) {
 		SplitString(ss)
 	}
 }
-
-//var bb = []byte(" CAMELCase ")
-//
-//func BenchmarkSplitBytes(b *testing.B) {
-//	for i := 0; i < b.N; i++ {
-//		SplitBytes(bb)
-//	}
-//}
-//
-//func BenchmarkRegexpSplitBytes(b *testing.B) {
-//	for i := 0; i < b.N; i++ {
-//		RegexpSplitString(ss)
-//	}
-//}

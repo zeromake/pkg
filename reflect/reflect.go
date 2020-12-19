@@ -1,16 +1,20 @@
 package reflect
 
 import (
-	"fmt"
+	"errors"
 	"reflect"
+)
+
+var (
+	ErrorNotSupply = errors.New("dst must is a ptr struct")
 )
 
 // CopyToStruct 结构体拷贝
 func CopyToStruct(dst interface{}, src interface{}) error {
 	dstValue := reflect.ValueOf(dst)
 	srcValue := reflect.Indirect(reflect.ValueOf(src))
-	if dstValue.Kind() != reflect.Ptr {
-		return fmt.Errorf("dst must is a ptr")
+	if dstValue.Kind() != reflect.Ptr || srcValue.Kind() != reflect.Struct {
+		return ErrorNotSupply
 	}
 	dstValue = dstValue.Elem()
 	dstType := dstValue.Type()
