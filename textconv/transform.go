@@ -69,3 +69,47 @@ func SentenceCaseTransform(input string, index int) string {
 	}
 	return strings.ToLower(input)
 }
+
+var commonMap = map[string]struct{}{
+	"Api":   {},
+	"Ascii": {},
+	"Cpu":   {},
+	"Css":   {},
+	"Dns":   {},
+	"Eof":   {},
+	"Guid":  {},
+	"Html":  {},
+	"Https": {},
+	"Http":  {},
+	"Id":    {},
+	"Ip":    {},
+	"Json":  {},
+	"Lhs":   {},
+	"Qps":   {},
+	"Ram":   {},
+	"Rhs":   {},
+	"Rpc":   {},
+	"Sla":   {},
+	"Smtp":  {},
+	"Ssh":   {},
+	"Tls":   {},
+	"Ttl":   {},
+	"Uuid":  {},
+	"Uid":   {},
+	"Ui":    {},
+	"Uri":   {},
+	"Url":   {},
+	"Utf8":  {},
+	"Vm":    {},
+	"Xml":   {},
+	"Xsrf":  {},
+	"Xss":   {},
+}
+
+func FieldCaseTransform(transform func(string, int) string, input string, index int, prevUpper bool) (string, bool) {
+	input = transform(input, index)
+	if _, ok := commonMap[input]; ok && !prevUpper {
+		return strings.ToUpper(input), true
+	}
+	return input, false
+}

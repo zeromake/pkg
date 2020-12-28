@@ -1,5 +1,6 @@
 package textconv
 
+import "strings"
 
 // CamelCase convert to `camelCase`
 func CamelCase(input string, options ...Option) string {
@@ -20,7 +21,7 @@ func CapitalCase(input string, options ...Option) string {
 }
 
 // ConstantCase convert to `CONSTANT_CASE`
-func ConstantCase(input string, options... Option) string {
+func ConstantCase(input string, options ...Option) string {
 	opt := DefaultOptions
 	opt.Delimiter = "_"
 	opt.Transform = ConstantCaseTransform
@@ -29,7 +30,7 @@ func ConstantCase(input string, options... Option) string {
 }
 
 // DotCase convert to `dot.case`
-func DotCase(input string, options... Option) string {
+func DotCase(input string, options ...Option) string {
 	opt := DefaultOptions
 	opt.Delimiter = "."
 	buildOptions(&opt, options)
@@ -37,7 +38,7 @@ func DotCase(input string, options... Option) string {
 }
 
 // HeaderCase convert to `Header-Case`
-func HeaderCase(input string, options... Option) string {
+func HeaderCase(input string, options ...Option) string {
 	opt := DefaultOptions
 	opt.Delimiter = "-"
 	opt.Transform = CapitalCaseTransform
@@ -86,3 +87,24 @@ func SentenceCase(input string, options ...Option) string {
 	return NoCase(input, opt)
 }
 
+// FieldCase convert to `FieldCase` equql PascalCase but `Id` convert to `ID` go struct field format
+func FieldCase(input string, options ...Option) string {
+	if len(input) == 0 {
+		return input
+	}
+	opt := DefaultOptions
+	opt.Transform = PascalCaseTransform
+	opt.Delimiter = ""
+	buildOptions(&opt, options)
+	var arr = opt.Split(input)
+	var prevUpper bool
+	for i := range arr {
+		s := arr[i]
+		s, prevUpper = FieldCaseTransform(opt.Transform, s, i, prevUpper)
+		if len(s) == 1 {
+			prevUpper = true
+		}
+		arr[i] = s
+	}
+	return strings.Join(arr, opt.Delimiter)
+}

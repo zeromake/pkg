@@ -270,6 +270,25 @@ func TestSentenceCase(t *testing.T) {
 	}
 }
 
+func TestFieldCase(t *testing.T) {
+	names := [][2]string{
+		{"", ""},
+		{"test", "Test"},
+		{"test string", "TestString"},
+		{"Test String", "TestString"},
+		{"id", "ID"},
+		{"uid", "UID"},
+		{"t uid", "TUid"},
+		{"user id", "UserID"},
+		{"vm id", "VMId"},
+		{"Https", "HTTPS"},
+	}
+	for _, name := range names {
+		n := FieldCase(name[0])
+		assert.Equal(t, n, name[1])
+	}
+}
+
 var ss = " CAMELCase "
 
 func BenchmarkSplitString(b *testing.B) {
