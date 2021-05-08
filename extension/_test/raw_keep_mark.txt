@@ -1,0 +1,48 @@
+1
+//- - - - - - - - -//
+$$
+h_\theta(x) = \theta_0 + \theta_1 x_1 \newline
+h_\theta(x) = \theta_0 + \theta_1 x_1
+$$
+//- - - - - - - - -//
+<code class="raw-block">
+$$
+h_\theta(x) = \theta_0 + \theta_1 x_1 \newline
+h_\theta(x) = \theta_0 + \theta_1 x_1
+$$</code>
+//= = = = = = = = = = = = = = = = = = = = = = = =//
+
+
+2
+//- - - - - - - - -//
+\$\$
+h_\theta(x) = \theta_0 + \theta_1 x_1
+h_\theta(x) = \theta_0 + \theta_1 x_1
+\$\$
+//- - - - - - - - -//
+<p>$$
+h_\theta(x) = \theta_0 + \theta_1 x_1
+h_\theta(x) = \theta_0 + \theta_1 x_1
+$$</p>
+//= = = = = = = = = = = = = = = = = = = = = = = =//
+
+
+3
+//- - - - - - - - -//
+- test $\theta_0$fff
+//- - - - - - - - -//
+<ul>
+<li>test <code class="raw-inline">$\theta_0$</code>fff</li>
+</ul>
+//= = = = = = = = = = = = = = = = = = = = = = = =//
+
+
+
+4
+//- - - - - - - - -//
+- test $\theta_0fff
+//- - - - - - - - -//
+<ul>
+<li>test $\theta_0fff</li>
+</ul>
+//= = = = = = = = = = = = = = = = = = = = = = = =//

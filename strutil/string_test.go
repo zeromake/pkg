@@ -1,4 +1,4 @@
-package utils
+package strutil
 
 import (
 	"reflect"
@@ -31,4 +31,17 @@ func TestBytesToString(t *testing.T) {
 	p2 := (*reflect.StringHeader)(unsafe.Pointer(&ss))
 	assert.Equal(t, p1.Data, p2.Data)
 	assert.Equal(t, p1.Len, p2.Len)
+}
+
+func BenchmarkStringToBytes(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		_ = StringToBytes(testString)
+	}
+}
+
+
+func BenchmarkStringToBytes2(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		_ = StringToBytes2(testString)
+	}
 }
