@@ -3,11 +3,14 @@ package main
 import (
 	"context"
 	"errors"
+	"fmt"
 	"github.com/pkg/sftp"
 	"golang.org/x/crypto/ssh"
 	"io"
 	"log"
 	"net"
+	"os/exec"
+	"os/user"
 	"sync"
 	"time"
 )
@@ -155,12 +158,22 @@ func (srv *Server) trackConn(c *ssh.ServerConn, add bool) {
 	}
 }
 
+type ExecRequest struct {
+	Cmd string
+}
+
+type EnvRequest struct {
+	Name  string
+	Value string
+}
+
 func (srv *Server) ChannelHandler(conn *ssh.ServerConn, newChan ssh.NewChannel) {
 	ch, reqs, err := newChan.Accept()
 	if err != nil {
 		// TODO: trigger event callback
 		return
 	}
+	var environ []string
 	for req := range reqs {
 		switch req.Type {
 		case "subsystem":
@@ -177,6 +190,40 @@ func (srv *Server) ChannelHandler(conn *ssh.ServerConn, newChan ssh.NewChannel) 
 				log.Print("sftp client exited session.")
 			} else if err != nil {
 				log.Fatal("sftp server completed with error:", err)
+			}
+		case "exec":
+			execReq := &ExecRequest{}
+			if err := ssh.Unmarshal(req.Payload, execReq); err != nil {
+				log.Println("Error unmarshaling exec:", err)
+				if req.WantReply {
+					err = req.Reply(false, nil)
+				}
+			} else {
+				cmd := execReq.Cmd
+				log.Println("exec:", cmd)
+				err = req.Reply(true, nil)
+				proc := exec.Command("sh", "-c", cmd)
+				if userInfo, err := user.Current(); err == nil {
+					proc.Dir = userInfo.HomeDir
+				}
+				proc.Env = environ
+				stdin, _ := proc.StdinPipe()
+				go io.Copy(stdin, ch)
+				proc.Stdout = ch
+				proc.Stderr = ch
+				proc.Run()
+				ch.SendRequest("exit-status", false, []byte{0, 0, 0, 0})
+				ch.Close()
+			}
+		case "env":
+			e := &EnvRequest{}
+			if err := ssh.Unmarshal(req.Payload, e); err != nil {
+				log.Println("Error unmarshaling env:", err)
+				if req.WantReply {
+					err = req.Reply(false, nil)
+				}
+			} else {
+				environ = append(environ, fmt.Sprintf("%s=\"%s\"", e.Name, e.Value))
 			}
 		default:
 			log.Println("not support:", req.Type)
