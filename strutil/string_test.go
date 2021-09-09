@@ -39,9 +39,8 @@ func BenchmarkStringToBytes(b *testing.B) {
 	}
 }
 
-
-func BenchmarkStringToBytes2(b *testing.B) {
-	for i := 0; i < b.N; i++ {
-		_ = StringToBytes2(testString)
-	}
-}
+// func BenchmarkStringToBytes2(b *testing.B) {
+// 	for i := 0; i < b.N; i++ {
+// 		_ = StringToBytes2(testString)
+// 	}
+// }
