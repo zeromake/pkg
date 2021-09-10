@@ -5,14 +5,7 @@ import (
 	"github.com/zeromake/pkg/patch/types"
 	"reflect"
 	"strings"
-	"sync"
 )
-
-var SyncMapType = reflect.TypeOf((*sync.Map)(nil))
-
-type Option struct {
-	Replace bool
-}
 
 func ModifyPatchSlice(
 	rValue reflect.Value,
@@ -57,12 +50,18 @@ func ModifyPatchSlice(
 		return rValue, nil
 	}
 	if opt.Replace {
-		element := reflect.New(elementType).Elem()
+		if !has {
+			if elementType.Kind() == reflect.Ptr {
+				old = reflect.New(elementType.Elem())
+			} else {
+				old = reflect.New(elementType).Elem()
+			}
+			rValue = reflect.Append(rValue, old)
+		}
 		err = SetValue(v, old)
 		if err != nil {
 			return
 		}
-		old.Set(element)
 		return
 	}
 	if elementType.Kind() == reflect.Ptr {
@@ -76,6 +75,118 @@ func ModifyPatchSlice(
 	}
 	rValue = reflect.Append(rValue, old)
 	return rValue, nil
+}
+
+func IncrPatch(rValue reflect.Value, path string, incr int64) (err error) {
+	if incr == 0 {
+		return
+	}
+	pp, ok := rValue.Interface().(types.Patch)
+	if ok {
+		p := &types.Item{
+			Op:    "incr",
+			Path:  path,
+			Value: incr,
+		}
+		return pp.Patch(p)
+	}
+	rType := rValue.Type()
+	key, nextPath := types.Split(path)
+	switch rType.Kind() {
+	case reflect.Map:
+		keyType := rType.Key()
+		elementType := rType.Elem()
+		if rValue.IsZero() {
+			rValue.Set(reflect.MakeMap(rType))
+		}
+		keyRvalue := reflect.New(keyType).Elem()
+		err = SetValue(key, keyRvalue)
+		if err != nil {
+			return
+		}
+		mapElement := rValue.MapIndex(keyRvalue)
+		has := mapElement.Kind() != reflect.Invalid
+		if nextPath != "" {
+			if !has {
+				if elementType.Kind() == reflect.Ptr {
+					mapElement = reflect.New(elementType.Elem())
+				} else {
+					mapElement = reflect.New(elementType).Elem()
+				}
+				rValue.SetMapIndex(keyRvalue, mapElement)
+			}
+			return IncrPatch(mapElement, nextPath, incr)
+		}
+		if has {
+			err = IncrNumber(mapElement, incr)
+			if err != nil {
+				return
+			}
+		} else {
+			mapElement = reflect.New(elementType).Elem()
+			err = IncrNumber(mapElement, incr)
+			if err != nil {
+				return
+			}
+			rValue.SetMapIndex(keyRvalue, mapElement)
+		}
+	case reflect.Slice:
+		index := int(types.Number(key).Int64())
+		has := index < rValue.Len()
+		var old reflect.Value
+		if !has {
+			return
+		}
+		old = rValue.Index(index)
+		if nextPath != "" {
+			return IncrPatch(old, nextPath, incr)
+		}
+		return IncrNumber(old, incr)
+	case reflect.Ptr:
+		if rValue.IsZero() {
+			rValue.Set(reflect.New(rType.Elem()))
+		}
+		return IncrPatch(rValue.Elem(), path, incr)
+	case reflect.Struct:
+		var index = 0
+		for ; index < rType.NumField(); index++ {
+			field := rType.Field(index)
+			tag := field.Tag.Get("json")
+			if tag == "-" {
+				continue
+			}
+			tag = strings.SplitN(tag, ",", 2)[0]
+			if tag == key {
+				break
+			}
+		}
+		if index >= rType.NumField() {
+			return
+		}
+		vv := rValue.Field(index)
+		has := !vv.IsZero()
+		if nextPath != "" {
+			var nn reflect.Value
+			var elemType reflect.Type
+			if vv.Kind() == reflect.Ptr {
+				elemType = vv.Type().Elem()
+				if !has {
+					nn = reflect.New(elemType)
+				}
+			} else {
+				elemType = vv.Type()
+				if !has {
+					nn = reflect.New(elemType).Elem()
+				}
+			}
+			if !has {
+				vv.Set(nn)
+			}
+			return IncrPatch(vv, nextPath, incr)
+		}
+		return IncrNumber(vv, incr)
+	}
+	return
 }
 
 func ModifyPatch(rValue reflect.Value, path string, v interface{}, opt *types.Option) (err error) {
@@ -288,6 +399,27 @@ func RemovePatch(rValue reflect.Value, path string) (err error) {
 	return
 }
 
+func IncrNumber(dst reflect.Value, incr int64) (err error) {
+	switch dst.Kind() {
+	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+		old := dst.Int()
+		old += incr
+		dst.SetInt(old)
+	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
+		old := dst.Uint()
+		old += uint64(incr)
+		dst.SetUint(old)
+	case reflect.Float32, reflect.Float64:
+		old := dst.Float()
+		old += float64(incr)
+		dst.SetFloat(old)
+	case reflect.Ptr:
+		dst.Set(reflect.New(dst.Type().Elem()))
+		return IncrNumber(dst.Elem(), incr)
+	}
+	return
+}
+
 func SetValue(src interface{}, dst reflect.Value) (err error) {
 	switch dst.Kind() {
 	case reflect.Bool: // true, false
@@ -356,4 +488,27 @@ func SetValue(src interface{}, dst reflect.Value) (err error) {
 		}
 	}
 	return nil
+}
+
+var addOption = &types.Option{}
+var replaceOption = &types.Option{
+	Replace: true,
+}
+
+func ApplyPatch(value interface{}, patch *types.Item) (err error) {
+	rValue := reflect.ValueOf(value)
+	switch patch.Op {
+	case "add":
+		err = ModifyPatch(rValue, patch.Path, patch.Value, addOption)
+	case "replace":
+		err = ModifyPatch(rValue, patch.Path, patch.Value, replaceOption)
+	case "remove":
+		err = RemovePatch(rValue, patch.Path)
+	case "incr":
+		err = IncrPatch(rValue, patch.Path, types.ToInt64(patch.Value))
+	}
+	if err != nil {
+		return
+	}
+	return
 }

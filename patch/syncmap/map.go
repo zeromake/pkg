@@ -139,6 +139,14 @@ func (m *PuzzleMap) Patch(item *types.Item) (err error) {
 			}
 			rv := reflect.ValueOf(v)
 			return patch.RemovePatch(rv, nextPath)
+		case "incr":
+			v, has := m.Load(key)
+			if !has {
+				v = &PuzzleCollectionStatus{}
+				m.Store(key, v)
+			}
+			rv := reflect.ValueOf(v)
+			return patch.IncrPatch(rv, nextPath, item.Value.(int64))
 		}
 		return
 	}

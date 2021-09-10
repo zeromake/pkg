@@ -68,19 +68,19 @@ func TestAddPatch(t *testing.T) {
 	model := &Model{}
 	rValue := reflect.ValueOf(model)
 	opt := &types.Option{}
-	err = patch.ModifyPatch(rValue, "/season/expired_time", 6000, opt)
-	err = patch.ModifyPatch(rValue, "/daily/weekly_expired_time", 5000, opt)
-	err = patch.ModifyPatch(rValue, "/guide/5/progress", 5, opt)
-	err = patch.ModifyPatch(rValue, "/guide/5/progress", 9, opt)
-	err = patch.ModifyPatch(rValue, "/guide2/0/progress", 5, opt)
-	err = patch.ModifyPatch(rValue, "/guide2/0/progress", 9, opt)
-	err = patch.ModifyPatch(rValue, "/guide2/0", map[string]interface{}{"progress": 100}, opt)
-	err = patch.ModifyPatch(rValue, "/property_info", map[interface{}]interface{}{"lev": 100}, opt)
-	err = patch.ModifyPatch(rValue, "/test/0/0", 9, opt)
-	err = patch.ModifyPatch(rValue, "/test/0/0", 6, opt)
-	err = patch.ModifyPatch(rValue, "/test/1/0", 6, opt)
-	err = patch.ModifyPatch(rValue, "/property_info/balance/60000", 1000, opt)
-	err = patch.ModifyPatch(rValue, "/property_info/props/1", 50, opt)
+	//err = patch.ModifyPatch(rValue, "/season/expired_time", 6000, opt)
+	//err = patch.ModifyPatch(rValue, "/daily/weekly_expired_time", 5000, opt)
+	//err = patch.ModifyPatch(rValue, "/guide/5/progress", 5, opt)
+	//err = patch.ModifyPatch(rValue, "/guide/5/progress", 9, opt)
+	//err = patch.ModifyPatch(rValue, "/guide2/0/progress", 5, opt)
+	//err = patch.ModifyPatch(rValue, "/guide2/0/progress", 9, opt)
+	//err = patch.ModifyPatch(rValue, "/guide2/0", map[string]interface{}{"progress": 100}, opt)
+	//err = patch.ModifyPatch(rValue, "/property_info", map[interface{}]interface{}{"lev": 100}, opt)
+	//err = patch.ModifyPatch(rValue, "/test/0/0", 9, opt)
+	//err = patch.ModifyPatch(rValue, "/test/0/0", 6, opt)
+	//err = patch.ModifyPatch(rValue, "/test/1/0", 6, opt)
+	//err = patch.ModifyPatch(rValue, "/property_info/balance/60000", 1000, opt)
+	//err = patch.ModifyPatch(rValue, "/property_info/props/1", 50, opt)
 	err = patch.ModifyPatch(rValue, "/property_info/collection_fragments/1", map[string]interface{}{
 		"collectionRound": 1,
 		"complete_time":   3,
@@ -89,6 +89,7 @@ func TestAddPatch(t *testing.T) {
 		},
 		"last_puzzle_play_round": 1,
 	}, opt)
+	err = patch.IncrPatch(rValue, "/property_info/collection_fragments/1/complete_time", -2)
 	assert.Nil(t, err)
 	bb, _ := json.MarshalIndent(model, "", "  ")
 	t.Log(string(bb))
