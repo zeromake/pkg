@@ -296,3 +296,9 @@ func BenchmarkSplitString(b *testing.B) {
 		SplitString(ss)
 	}
 }
+
+func BenchmarkRegexpSplitString(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		RegexpSplitString(ss)
+	}
+}

@@ -1,44 +1,72 @@
 package textconv
 
-// split
-// "$1\000$2"
-//[]*regexp.Regexp{
-//	regexp.MustCompile("([a-z0-9])([A-Z])"),
-//	regexp.MustCompile("([A-Z])([A-Z][a-z])"),
-//}
-// strip
-// "\000"
-//[]*regexp.Regexp{
-//	regexp.MustCompile("[^a-zA-Z0-9]+"),
-//}
-//
-//func replace(input string, regexps []*regexp.Regexp, value string) string {
-//	var v = input
-//	for _, re := range regexps {
-//		v = re.ReplaceAllString(v, value)
-//	}
-//	return v
-//}
+import (
+	"regexp"
+	"strings"
+)
+
+var (
+	splitRepl = "$1\000$2"
+	stripRepl = "\000"
+)
+
+func replace(input string, regexps []*regexp.Regexp, value string) string {
+	var v = input
+	for _, re := range regexps {
+		v = re.ReplaceAllString(v, value)
+	}
+	return v
+}
+
+var splitRegexp = []*regexp.Regexp{
+	regexp.MustCompile("([a-z0-9])([A-Z])"),
+	regexp.MustCompile("([A-Z])([A-Z][a-z])"),
+}
+var stripRegexp = []*regexp.Regexp{
+	regexp.MustCompile("[^a-zA-Z0-9]+"),
+}
+
+func RegexpSplitString(input string) []string {
+	var split = replace(
+		input,
+		splitRegexp,
+		splitRepl,
+	)
+	var result = replace(
+		split,
+		stripRegexp,
+		stripRepl,
+	)
+	arr := strings.Split(result, stripRepl)
+	var ret []string
+	for _, a := range arr {
+		if len(a) == 0 {
+			continue
+		}
+		ret = append(ret, a)
+	}
+	return ret
+}
 
 // SplitString 分割字符串 0-9a-zA-Z 的词语
 func SplitString(input string) []string {
 	var (
 		// 切割后的结果字符串数组
-		result     []string
+		result []string
 		// 当前字符为大写
-		currCase   bool
+		currCase bool
 		// 当前字符为数字
 		currNumber bool
 		// 下一个字符为大写
-		nextCase   bool
+		nextCase bool
 		// 上一个字符为大写
-		prevCase   bool
+		prevCase bool
 		// 上一个字符为数字
 		prevNumber bool
 		// 需要分割字符串的长度
-		offset     int
+		offset int
 		// 输入字符串长度 -1
-		length     = len(input) - 1
+		length = len(input) - 1
 	)
 	for i := 0; i < length; i++ {
 		v := input[i]
